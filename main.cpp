@@ -1,6 +1,7 @@
 #include <iostream>
 #include <list>
-#include "ArbolBinario.h"
+#include "tree/ArbolBinario/ArbolBinario.h"
+#include "tree/ArbolN-Ario/ArbolNario.h"
 
 using namespace std;
 
