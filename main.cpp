@@ -1,11 +1,26 @@
 #include <iostream>
 #include <list>
-#include "ArbolBinario.h"
+//#include "ArbolBinario.h"
+#include "utils/person.h"
 
 using namespace std;
 
 int main() {
-	cout << "Doriem";
+  Person<string> *person = new Person<string>();
+  person->setCi("25");
+  person->setFirstname("Dorime");
+  person->setLastname("Ameno");
 
-	return 0;
+  cout << person->getCi() << endl;
+  cout << person->getFirstname() << endl;
+  cout << person->getLastname() << endl;
+
+  vector<Person<string>> people;
+  people.push_back(*person);
+  people.push_back(*person);
+
+  cout << "People: " << people.back().getCi() << endl;
+  cout << "Length" << people.size() << endl;
+
+  return 0;
 }
