@@ -7,13 +7,13 @@ Puntos_h = *.h
 Programa = *.c*
 
 #almacena el nombre del ejecutable
-Ejecutable = arboles
+Ejecutable = projecto
 
 #almacena el nombre del archivo de entrada
-Entrada = entrada.txt
+Entrada = entrada.in
 
 #almacena el nombre del archivo de salida
-Salida = salida.txt
+Salida = salida.out
 
 #almacena el comando del compilador
 CC = g++

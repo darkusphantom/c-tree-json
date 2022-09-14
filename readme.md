@@ -21,23 +21,21 @@ Este proyecto de la universidad que consiste en aplicar la lógica de arboles ut
 
   ```json
   {
-  	"departamento":8,
-  	"nombredepto":"Ventas",
-  	"director": "Juan Rodríguez",
-  	"empleados":[
-  		{
-  			"nombre":"Pedro",
-  			"apellido":"Fernández"
-  		},
-          {
-  			"nombre":"Jacinto",
-  			"apellido":"Benavente"
-  		}
-  	]
+    "departamento": 8,
+    "nombredepto": "Ventas",
+    "director": "Juan Rodríguez",
+    "empleados": [
+      {
+        "nombre": "Pedro",
+        "apellido": "Fernández"
+      },
+      {
+        "nombre": "Jacinto",
+        "apellido": "Benavente"
+      }
+    ]
   }
   ```
-
-  
 
 ## ¿Cómo importar la librería simpleson?
 
@@ -52,7 +50,7 @@ int main() {
  	// variables declaration
  	string input = "{ \"hello\": \"world\" }";
 	json::jobject result = json::jobject::parse(input);
-    
+
  	//code
  	string value = result.get("hello");
     cout << value;
@@ -72,44 +70,43 @@ Se requiere dos archivos:
 
 ```json
 {
-    "nombre": "Alvaro",
-    "apellido": "Espinoza",
-    "cedula": "24500719",
-    "subordinados": [
+  "nombre": "Alvaro",
+  "apellido": "Espinoza",
+  "cedula": "24500719",
+  "subordinados": [
+    {
+      "nombre": "Giuliana",
+      "apellido": "Belli",
+      "cedula": "5468339912",
+      "subordinados": []
+    },
+    {
+      "nombre": "Martin",
+      "apellido": "Rodriguez",
+      "cedula": "1698972",
+      "subordinados": [
         {
-            "nombre": "Giuliana",
-            "apellido": "Belli",
-            "cedula": "5468339912",
-            "subordinados": []
-        },
-        {
-            "nombre": "Martin",
-            "apellido": "Rodriguez",
-            "cedula": "1698972",
-            "subordinados": [
-                {
-                    "nombre": "Juan",
-                    "apellido": "Cano",
-                    "cedula": "16989723",
-                    "subordinados": []
-                }
-            ]
-        },
-        {
-            "nombre": "Angel",
-            "apellido": "Oropeza",
-            "cedula": "78982",
-            "subordinados": []
+          "nombre": "Juan",
+          "apellido": "Cano",
+          "cedula": "16989723",
+          "subordinados": []
         }
-    ]
+      ]
+    },
+    {
+      "nombre": "Angel",
+      "apellido": "Oropeza",
+      "cedula": "78982",
+      "subordinados": []
+    }
+  ]
 }
 ```
-
-
 
 ### Formato de salida
 
 La salida será cuatro líneas con cada recorrido del árbol descrito en `entrada.json`, mostrando el campo escrito en “salida.out” para cada nodo, seguido por el nombre del recorrido en mayúscula y dos puntos, cada palabra entre comillas, separadas por coma y espacio. El recorrido en sí debe estar entre corchetes.
+
 Por ejemplo, en el caso del JSON anterior con la palabra NOMBRE:
 
 ```
@@ -118,4 +115,3 @@ INORDEN: [“GiulianaBelli”, “AlvaroEspinoza”, “JuanCano”, “MartinRo
 POSTORDEN: [“GiulianaBelli”, “JuanCano”, “AngelOropeza”, “MartinRodriguez”, “AlvaroEspinoza”]
 NIVELES: [“AlvaroEspinoza”, “GiulianaBelli”, “MartinRodriguez”, “AngelOropeza”, “JuanCano”]
 ```
-
