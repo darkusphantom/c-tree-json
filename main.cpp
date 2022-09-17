@@ -1,37 +1,25 @@
 #include "tree/ArbolBinario/ArbolBinario.h"
 #include "tree/ArbolN-Ario/ArbolNario.h"
+#include "utils/file.cpp"
 #include "utils/person.h"
+#include "utils/utils.cpp"
 #include "json/json.h"
+#include <algorithm>
+#include <cctype>
 #include <iostream>
 #include <list>
+#include <string>
 
 using namespace std;
 
 int main() {
-  // JSON
-  // variables declaration
-  string input = "{ \"hello\": \"world\" }";
-  json::jobject result = json::jobject::parse(input);
-  // code
-  string value = result.get("hello");
-  cout << value << endl;
+  string entradaFile = "entrada.in";
+  string jsonFile = "entrada.json";
+  vector<string> entradaInData = readFile(entradaFile);
+  vector<string> jsonData = readFile(jsonFile);
 
-  // Utils - People
-  Person<string> *person = new Person<string>();
-  person->setCi("25");
-  person->setFirstname("Dorime");
-  person->setLastname("Ameno");
-
-  cout << person->getCi() << endl;
-  cout << person->getFirstname() << endl;
-  cout << person->getLastname() << endl;
-
-  vector<Person<string>> people;
-  people.push_back(*person);
-  people.push_back(*person);
-
-  cout << "People: " << people.back().getCi() << endl;
-  cout << "Length" << people.size() << endl;
+  cleanSpace(jsonData);
+  readVector(jsonData);
 
   return 0;
 }
