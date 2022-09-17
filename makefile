@@ -28,7 +28,7 @@ principal:
 	
 #compila y ejecuta con un archivo de entrada y salida por entrada estandar
 in_out :
-	$(CC) $(Programa) -o $(Ejecutable) && ./$(Ejecutable) < $(Entrada) > $(Salida)
+	$(CC) $(Programa) -o $(Ejecutable) && ./$(Ejecutable) < $() > $(Salida)
 	
 #compila y ejecuta solo con salida standar de archivo
 out :
