@@ -1,6 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <algorithm>
 #include <cctype>
 #include <iostream>
 #include <list>
@@ -8,18 +9,6 @@
 #include <vector>
 using namespace std;
 
-template <class type> void readVector(vector<type> words) {
-  for (int i = 0; i < words.size(); ++i) {
-    cout << i + 1 << ": " << words[i] << endl;
-  }
-}
-
-template <class type> void readList(list<type> listElements) {
-  for (int i = 0; i < listElements.size(); ++i) {
-    cout << listElements.back() << endl;
-    listElements.pop_back();
-  }
-}
 
 template <class type> void cleanSpace(vector<type> &strings) {
   for (int i = 0; i < strings.size(); ++i) {
@@ -29,13 +18,12 @@ template <class type> void cleanSpace(vector<type> &strings) {
   }
 }
 
-template <class type> void cleanPunct(vector<type> &strings) {
-  for (int i = 0; i < strings.size(); ++i) {
-    auto start = strings[i].begin();
-    auto end = strings[i].end();
+string cleanPunct(string strings) {
+  auto start = strings.begin();
+  auto end = strings.end();
 
-    strings[i].erase(1);
-  }
+  strings.erase(remove_if(start, end, ::ispunct), end);
+  return strings;
 }
 
 // Obtiene los valores de una linea, leyendo caracter por caracter
@@ -54,6 +42,20 @@ void getReadWordByWord(list<int> &principalList, list<string> &listType) {
       value = stoi(word);
       principalList.push_back(value);
     }
+  }
+}
+
+template <class type> void readVector(vector<type> words) {
+  for (int i = 0; i < words.size(); ++i) {
+    // cout << i + 1 << ": " << words[i] << endl;
+    cout << words[i] << endl;
+  }
+}
+
+template <class type> void readList(list<type> listElements) {
+  for (int i = 0; i < listElements.size(); ++i) {
+    cout << listElements.back() << endl;
+    listElements.pop_back();
   }
 }
 
