@@ -19,13 +19,11 @@ public:
   ~ArbolNario();
 
   // metodos
-  bool esVacia();     // indica si el arbol es vacio
-  bool esHoja();      // indica si el arbol es una hoja
-  tipo obtenerRaiz(); // devuelve el dato raiz del arbol
-  void insertarHijoIzquierdo(
-      tipo padre, tipo NuevoDato); // inserta un hijo izquierdo en el arbol
-  void insertarHermanoDerecho(
-      tipo padre, tipo NuevoDato); // inserta un hermano derecho en el arbol
+  bool esVacia();
+  bool esHoja();
+  tipo obtenerRaiz();
+  void insertarHijoIzquierdo(tipo padre, tipo NuevoDato);
+  void insertarHermanoDerecho(tipo padre, tipo NuevoDato);
   void preorden(list<tipo> *listaPreorden); // genera una lista con un recorrido
                                             // en preorden
   void postorden(list<tipo> *listaPostorden); // genera una lista con un
@@ -43,9 +41,6 @@ private:
                                 // devuelve en nodo correspondiente
   NodoArbol<tipo> *buscarUltimoHermano(
       NodoArbol<tipo> *nodoRaiz); // busca el ultimo hermano derecho de un nodo
-  void preorden(list<tipo> *listaPreorden, NodoArbol<tipo> *nodoRaiz);
-  void postorden(list<tipo> *listaPostorden, NodoArbol<tipo> *nodoRaiz);
-  void inorden(list<tipo> *listaInorden, NodoArbol<tipo> *nodoRaiz);
   void diametro(NodoArbol<tipo> *nodoRaiz, int *diametro);
   void altura(NodoArbol<tipo> *nodoRaiz, int alturaActual,
               int *altura); // retorna la altura de un arbol

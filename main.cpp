@@ -146,6 +146,8 @@ int main() {
     // showPeople(personData);
     list<string> listPeople = convertMapJsonToList(personData, "nombre");
 
+    //ArbolNario<string> *tree = new ArbolNario<string>();
+
     /*cout << listPeople.back() << endl;
     listPeople.pop_back();
     cout << listPeople.back() << endl;
@@ -156,7 +158,6 @@ int main() {
     listPeople.pop_back();
     cout << listPeople.back() << endl;
     listPeople.pop_back();*/
-
   }
 
   return 0;
