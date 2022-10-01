@@ -1,30 +1,11 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <algorithm>
-#include <cctype>
 #include <iostream>
 #include <list>
 #include <sstream>
 #include <vector>
 using namespace std;
-
-
-template <class type> void cleanSpace(vector<type> &strings) {
-  for (int i = 0; i < strings.size(); ++i) {
-    auto start = strings[i].begin();
-    auto end = strings[i].end();
-    strings[i].erase(remove_if(start, end, ::isspace), end);
-  }
-}
-
-string cleanPunct(string strings) {
-  auto start = strings.begin();
-  auto end = strings.end();
-
-  strings.erase(remove_if(start, end, ::ispunct), end);
-  return strings;
-}
 
 // Obtiene los valores de una linea, leyendo caracter por caracter
 void getReadWordByWord(list<int> &principalList, list<string> &listType) {
@@ -44,6 +25,9 @@ void getReadWordByWord(list<int> &principalList, list<string> &listType) {
     }
   }
 }
+
+// Utils reading
+//
 
 template <class type> void readVector(vector<type> words) {
   for (int i = 0; i < words.size(); ++i) {

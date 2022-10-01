@@ -1,11 +1,11 @@
 #include "tree/ArbolBinario/ArbolBinario.h"
 #include "tree/ArbolN-Ario/ArbolNario.h"
+#include "utils/clean.cpp"
+#include "utils/conversion.cpp"
 #include "utils/file.cpp"
 #include "utils/person.h"
 #include "utils/utils.cpp"
 #include "json/json.h"
-#include <algorithm>
-#include <cctype>
 #include <iostream>
 #include <list>
 #include <map>
@@ -17,6 +17,7 @@ using namespace json;
 typedef pair<int, jobject> par;
 typedef map<int, jobject> personMap;
 
+// FormatName limpia todo el string dejando solo las letras.
 string formatName(jobject person) {
   string firstname = person.get("nombre");
   string lastname = person.get("apellido");
@@ -26,6 +27,7 @@ string formatName(jobject person) {
   return fullname;
 }
 
+// Parsing slaves se usa cada vez que el array de subordinados pierde el parsing
 jobject parsingSlaves(jobject person) {
   string slaves = person.get("subordinados");
   jobject parsedSlaves = jobject::parse(slaves);
@@ -33,6 +35,8 @@ jobject parsingSlaves(jobject person) {
   return parsedSlaves;
 }
 
+// Agrega todos los subordinados a una sola lista
+// Tambien se usa para obtener la lista como un arbol por niveles
 void setAllPeople(personMap &personData) {
   // Iterators
   int i = 0, j = 0;
@@ -52,10 +56,11 @@ void setAllPeople(personMap &personData) {
   map<int, jobject>::iterator iMap = auxPersonData.begin();
 
   while (j < maxSlaves + 1) {
-    jobject otherPerson = iMap->second.array(i);
-    jobject slaves = jobject::parse(otherPerson.get("subordinados"));
+    jobject personActual = iMap->second.array(i);
+    jobject slaves = jobject::parse(personActual.get("subordinados"));
 
-    personData.insert(par(personData.size(), otherPerson));
+    // Se agrega la persona actual junto a su key (personData.size())
+    personData.insert(par(personData.size(), personActual));
     i++;
 
     // If exist an slave, insert in auxiliar personData map
@@ -64,6 +69,8 @@ void setAllPeople(personMap &personData) {
       totalSlaves += slaves.size();
     }
 
+    // Cuando llegue al máximo de subordinados, se reinicia el conteo hasta que
+    // nadie tenga más subordinados
     if (i == maxSlaves) {
       i = 0;
       maxSlaves = totalSlaves;
@@ -78,18 +85,18 @@ void showPeople(personMap personData) {
   map<int, jobject>::iterator iMap;
 
   for (iMap = personData.begin(); iMap != personData.end(); ++iMap) {
-    jobject otherPerson = iMap->second;
+    jobject personActual = iMap->second;
 
     cout << "Clave: " << iMap->first;
-    cout << " Valor: " << otherPerson.get("nombre") << endl;
+    cout << " Valor: " << personActual.get("nombre") << endl;
   }
 }
 
 int main() {
   string entradaFile = "entrada.in";
-  string entradaInData = readFile(entradaFile).back();
+  string mode = readFile(entradaFile).back();
 
-  if (entradaInData != "cedula" && entradaInData != "nombre") {
+  if (mode != "cedula" && mode != "nombre") {
     cout << "Error. Coloca en entrada.in nombre o cedula" << endl;
     return 1;
   }
@@ -98,19 +105,25 @@ int main() {
   vector<string> jsonData = readFile(jsonFile);
 
   // Se limpia los espacios para evitar problemas al guardar en el jobject
-  cleanSpace(jsonData);
+  for (int i = 0; i < jsonData.size(); ++i) {
+    jsonData[i] = cleanSpace(jsonData[i]);
+  }
 
+  // Convierte todo el vector en un string para luego hacer parsing
   string jsonString = convertVectorToString(jsonData);
   jobject person = jobject::parse(jsonString);
 
+  // Se añade el primer elemento del json para centrarse luego en sus
+  // subordinados
   personMap personData;
   personData.insert(par(0, person));
 
+  // Se hace parsing a los subordinados del primer elemento
   jobject parsedSlaves = parsingSlaves(person);
 
   if (parsedSlaves.size() > 0) {
     setAllPeople(personData);
-    //showPeople(personData);
+    showPeople(personData);
   }
 
   return 0;
