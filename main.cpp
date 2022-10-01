@@ -81,6 +81,26 @@ void setAllPeople(personMap &personData) {
   }
 }
 
+list<string> convertMapJsonToList(personMap personData, string key) {
+  map<int, jobject>::iterator iMap;
+  list<string> listPeople;
+
+  for (iMap = personData.begin(); iMap != personData.end(); ++iMap) {
+    jobject personActual = iMap->second;
+
+    if (key == "cedula") {
+      string cleanedCi = cleanPunct(personActual.get(key));
+      listPeople.push_front(cleanedCi);
+    }
+
+    if (key == "nombre") {
+      string fullname = formatName(personActual);
+      listPeople.push_front(fullname);
+    }
+  }
+  return listPeople;
+}
+
 void showPeople(personMap personData) {
   map<int, jobject>::iterator iMap;
 
@@ -123,7 +143,20 @@ int main() {
 
   if (parsedSlaves.size() > 0) {
     setAllPeople(personData);
-    showPeople(personData);
+    // showPeople(personData);
+    list<string> listPeople = convertMapJsonToList(personData, "nombre");
+
+    /*cout << listPeople.back() << endl;
+    listPeople.pop_back();
+    cout << listPeople.back() << endl;
+    listPeople.pop_back();
+    cout << listPeople.back() << endl;
+    listPeople.pop_back();
+    cout << listPeople.back() << endl;
+    listPeople.pop_back();
+    cout << listPeople.back() << endl;
+    listPeople.pop_back();*/
+
   }
 
   return 0;
