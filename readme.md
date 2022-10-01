@@ -4,6 +4,8 @@
 
 Este proyecto de la universidad que consiste en aplicar la lógica de arboles utilizando una librería JSON en C++.
 
+Si quieres saber acerca de cómo funciona el código, puedes ir al apartado de [instrucciones](./docs/explain.md).
+
 ## Instrucciones
 
 - El ejercicio requiere la lectura de datos **utilizando archivos**.
