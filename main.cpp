@@ -16,6 +16,8 @@ using namespace json;
 
 typedef pair<int, jobject> par;
 typedef map<int, jobject> personMap;
+typedef vector<string> nodeVector;
+typedef list<nodeVector> vectorList;
 
 // FormatName limpia todo el string dejando solo las letras.
 string formatName(jobject person) {
@@ -37,24 +39,22 @@ jobject parsingSlaves(jobject person) {
 
 // Agrega todos los subordinados a una sola lista
 // Tambien se usa para obtener la lista como un arbol por niveles
-void setAllPeople(personMap &personData) {
-  // Iterators
+personMap getByLevel(personMap personData) {
   int i = 0, j = 0;
 
   // Total slaves if for the person slave actual
   int totalSlaves = 0;
 
-  // Parsing slaves an get the max
+  // Parsing slaves of first person and get the max
   jobject personSlave = parsingSlaves(personData.at(0));
   int maxSlaves = personSlave.size();
 
-  // insert the slaves obtained
+  // Insert the slaves obtained
   personMap auxPersonData;
   auxPersonData.insert(par(1, personSlave));
 
   // Get iterator of the map and start loop
   map<int, jobject>::iterator iMap = auxPersonData.begin();
-
   while (j < maxSlaves + 1) {
     jobject personActual = iMap->second.array(i);
     jobject slaves = jobject::parse(personActual.get("subordinados"));
@@ -69,36 +69,61 @@ void setAllPeople(personMap &personData) {
       totalSlaves += slaves.size();
     }
 
-    // Cuando llegue al máximo de subordinados, se reinicia el conteo hasta que
-    // nadie tenga más subordinados
+    // When i == maxSlaves, pass to the next level and reset counters
     if (i == maxSlaves) {
-      i = 0;
-      maxSlaves = totalSlaves;
+      i = 0;                   // Reset slave
+      maxSlaves = totalSlaves; // Max slaves of the next level
       totalSlaves = 0;
       iMap++;
       j++;
     }
   }
+
+  return personData;
 }
 
-list<string> convertMapJsonToList(personMap personData, string key) {
-  map<int, jobject>::iterator iMap;
-  list<string> listPeople;
+personMap getPeoplePreorden(personMap personData) {
+  int i = 0, j = 0;
+  list<int> totalSlaves;
 
-  for (iMap = personData.begin(); iMap != personData.end(); ++iMap) {
-    jobject personActual = iMap->second;
+  jobject personSlave = parsingSlaves(personData[0]);
+  int maxSlaves = personSlave.size();
 
-    if (key == "cedula") {
-      string cleanedCi = cleanPunct(personActual.get(key));
-      listPeople.push_front(cleanedCi);
+  personMap auxPersonData;
+  auxPersonData.insert(par(1, personSlave));
+
+  map<int, jobject>::iterator iMap = auxPersonData.begin();
+  while (i < maxSlaves) {
+    jobject personActual = iMap->second.array(i);
+    jobject slaves = jobject::parse(personActual.get("subordinados"));
+
+    personData.insert(par(personData.size(), personActual));
+    i++;
+
+    if (slaves.size() > 0) {
+      auxPersonData.insert(par(i + 1, slaves));
+      // coloca el valor actual del iterador para retomarlo
+      totalSlaves.push_back(i);
+
+      // Coloca el iterador maximo del siguiente
+      totalSlaves.push_front(slaves.size());
+      i = 0; // Reset slave
+      iMap++;
     }
 
-    if (key == "nombre") {
-      string fullname = formatName(personActual);
-      listPeople.push_front(fullname);
+    if (!totalSlaves.empty()) {
+      if (totalSlaves.front() == i) {
+        totalSlaves.pop_front();
+        i = totalSlaves.back();
+        totalSlaves.pop_back();
+        iMap--;
+      }
     }
   }
-  return listPeople;
+
+  totalSlaves.clear();
+  auxPersonData.clear();
+  return personData;
 }
 
 void showPeople(personMap personData) {
@@ -129,7 +154,6 @@ int main() {
     jsonData[i] = cleanSpace(jsonData[i]);
   }
 
-  // Convierte todo el vector en un string para luego hacer parsing
   string jsonString = convertVectorToString(jsonData);
   jobject person = jobject::parse(jsonString);
 
@@ -138,26 +162,15 @@ int main() {
   personMap personData;
   personData.insert(par(0, person));
 
-  // Se hace parsing a los subordinados del primer elemento
   jobject parsedSlaves = parsingSlaves(person);
 
   if (parsedSlaves.size() > 0) {
-    setAllPeople(personData);
-    // showPeople(personData);
-    list<string> listPeople = convertMapJsonToList(personData, "nombre");
+    personMap byLevel = getByLevel(personData);
+    showPeople(byLevel);
+    cout << endl;
 
-    //ArbolNario<string> *tree = new ArbolNario<string>();
-
-    /*cout << listPeople.back() << endl;
-    listPeople.pop_back();
-    cout << listPeople.back() << endl;
-    listPeople.pop_back();
-    cout << listPeople.back() << endl;
-    listPeople.pop_back();
-    cout << listPeople.back() << endl;
-    listPeople.pop_back();
-    cout << listPeople.back() << endl;
-    listPeople.pop_back();*/
+    personMap preorden = getPeoplePreorden(personData);
+    showPeople(preorden);
   }
 
   return 0;
