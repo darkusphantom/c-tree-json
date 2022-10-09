@@ -15,6 +15,8 @@ using namespace json;
 
 typedef pair<int, jobject> par;
 typedef map<int, jobject> personMap;
+typedef vector<string> nodeVector;
+typedef list<nodeVector> vectorList;
 
 // clean firstname, lastname and concat
 string formatName(jobject person) {
@@ -26,21 +28,24 @@ string formatName(jobject person) {
 }
 
 // Parsing slaves array
+// @return a jobject of slaves
 jobject parsingSlaves(jobject person) {
   string slaves = person.get("subordinados");
   jobject parsedSlaves = jobject::parse(slaves);
   return parsedSlaves;
 }
 
-// Set all people in a map
+// get a map list by level
 // @return map with person.
-void setAllPeople(personMap &personData) {
+personMap getByLevel(personMap personData) {
   int i = 0, j = 0;
   int totalSlaves = 0;
 
-  jobject personSlave = parsingSlaves(personData.at(0));
+  // Parsing slaves of first person and get the max
+  jobject personSlave = parsingSlaves(personData[0]);
   int maxSlaves = personSlave.size();
 
+  // Insert the slaves obtained
   personMap auxPersonData;
   auxPersonData.insert(par(1, personSlave));
 
@@ -57,35 +62,63 @@ void setAllPeople(personMap &personData) {
       totalSlaves += slaves.size();
     }
 
+    // When i == maxSlaves, pass to the next level and reset counters
     if (i == maxSlaves) {
-      i = 0;
-      maxSlaves = totalSlaves;
+      i = 0;                   // Reset slave
+      maxSlaves = totalSlaves; // Max slaves of the next level
       totalSlaves = 0;
       iMap++;
       j++;
     }
   }
+
+  return personData;
 }
 
-// Transform an map of json in a list with a key selected
-list<string> convertMapJsonToList(personMap personData, string key) {
-  map<int, jobject>::iterator iMap;
-  list<string> listPeople;
+// Get a map list in preorden
+// @return map with person.
+personMap getPeoplePreorden(personMap personData) {
+  int i = 0, j = 0;
+  list<int> totalSlaves;
 
-  for (iMap = personData.begin(); iMap != personData.end(); ++iMap) {
-    jobject personActual = iMap->second;
+  jobject personSlave = parsingSlaves(personData[0]);
+  int maxSlaves = personSlave.size();
 
-    if (key == "cedula") {
-      string cleanedCi = cleanPunct(personActual.get(key));
-      listPeople.push_front(cleanedCi);
+  personMap auxPersonData;
+  auxPersonData.insert(par(1, personSlave));
+
+  map<int, jobject>::iterator iMap = auxPersonData.begin();
+  while (i < maxSlaves) {
+    jobject personActual = iMap->second.array(i);
+    jobject slaves = jobject::parse(personActual.get("subordinados"));
+
+    personData.insert(par(personData.size(), personActual));
+    i++;
+
+    if (slaves.size() > 0) {
+      auxPersonData.insert(par(i + 1, slaves));
+      // coloca el valor actual del iterador para retomarlo
+      totalSlaves.push_back(i);
+
+      // Coloca el iterador maximo del siguiente
+      totalSlaves.push_front(slaves.size());
+      i = 0; // Reset slave
+      iMap++;
     }
 
-    if (key == "nombre") {
-      string fullname = formatName(personActual);
-      listPeople.push_front(fullname);
+    if (!totalSlaves.empty()) {
+      if (totalSlaves.front() == i) {
+        totalSlaves.pop_front();
+        i = totalSlaves.back();
+        totalSlaves.pop_back();
+        iMap--;
+      }
     }
   }
-  return listPeople;
+
+  totalSlaves.clear();
+  auxPersonData.clear();
+  return personData;
 }
 
 // Iterate a map of json and show ther keys and values
@@ -124,20 +157,11 @@ int main() {
   jobject parsedSlaves = parsingSlaves(person);
 
   if (parsedSlaves.size() > 0) {
-    setAllPeople(personData);
-    list<string> listPeople = convertMapJsonToList(personData, "nombre");
-
-    /*cout << listPeople.back() << endl;
-    listPeople.pop_back();
-    cout << listPeople.back() << endl;
-    listPeople.pop_back();
-    cout << listPeople.back() << endl;
-    listPeople.pop_back();
-    cout << listPeople.back() << endl;
-    listPeople.pop_back();
-    cout << listPeople.back() << endl;
-    listPeople.pop_back();*/
-
+    personMap preorden = getPeoplePreorden(personData);
+    showPeople(preorden);
+    cout << endl;
+    personMap byLevel = getByLevel(personData);
+    showPeople(byLevel);
   }
 
   return 0;

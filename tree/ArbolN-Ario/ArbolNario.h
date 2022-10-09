@@ -4,12 +4,15 @@
 #include "NodoArbol.h"
 #include <iostream>
 #include <list>
+#include <queue>
+#include <vector>
 
 using namespace std;
 using std::list;
 
 template <class tipo> class ArbolNario {
 private:
+  vector<NodoArbol<tipo> *> child;
   NodoArbol<tipo> *raiz;
 
 public:
@@ -19,13 +22,11 @@ public:
   ~ArbolNario();
 
   // metodos
-  bool esVacia();     // indica si el arbol es vacio
-  bool esHoja();      // indica si el arbol es una hoja
-  tipo obtenerRaiz(); // devuelve el dato raiz del arbol
-  void insertarHijoIzquierdo(
-      tipo padre, tipo NuevoDato); // inserta un hijo izquierdo en el arbol
-  void insertarHermanoDerecho(
-      tipo padre, tipo NuevoDato); // inserta un hermano derecho en el arbol
+  bool esVacia();
+  bool esHoja();
+  tipo obtenerRaiz();
+  void insertarHijoIzquierdo(tipo padre, tipo NuevoDato);
+  void insertarHermanoDerecho(tipo padre, tipo NuevoDato);
   void preorden(list<tipo> *listaPreorden); // genera una lista con un recorrido
                                             // en preorden
   void postorden(list<tipo> *listaPostorden); // genera una lista con un
@@ -35,6 +36,7 @@ public:
   int diametro();                         // retorna el diametro del arbol
   void vaciar(); // elimina todos los elemnetos del arbol
   void copiar(ArbolNario<tipo> *arbolOriginal); // copia un arbol existente
+  void crearPorLista(list<tipo> listData);
 
 private:
   NodoArbol<tipo> *
@@ -43,16 +45,72 @@ private:
                                 // devuelve en nodo correspondiente
   NodoArbol<tipo> *buscarUltimoHermano(
       NodoArbol<tipo> *nodoRaiz); // busca el ultimo hermano derecho de un nodo
-  void preorden(list<tipo> *listaPreorden, NodoArbol<tipo> *nodoRaiz);
-  void postorden(list<tipo> *listaPostorden, NodoArbol<tipo> *nodoRaiz);
   void inorden(list<tipo> *listaInorden, NodoArbol<tipo> *nodoRaiz);
+  void preorden(list<tipo> *listaPreorden, NodoArbol<tipo> *nodoRaiz);
+  void postorden(list<tipo> *listaPreorden, NodoArbol<tipo> *nodoRaiz);
   void diametro(NodoArbol<tipo> *nodoRaiz, int *diametro);
   void altura(NodoArbol<tipo> *nodoRaiz, int alturaActual,
               int *altura); // retorna la altura de un arbol
   void vaciar(NodoArbol<tipo> *nodoRaiz);
   void copiar(NodoArbol<tipo> *nodoOriginal, NodoArbol<tipo> *nodoCopia);
   NodoArbol<tipo> *obtenerNodoRaiz(); // retorna  el nodo raiz del arbol
+  void insertarValor(NodoArbol<tipo> *raiz, tipo padre, NodoArbol<tipo> *node);
 };
+
+template <class tipo>
+void ArbolNario<tipo>::insertarValor(NodoArbol<tipo> *raiz, tipo padre,
+                                     NodoArbol<tipo> *node) {
+
+  if (!raiz)
+    raiz = node;
+
+  if (raiz->obtenerDato() == padre) {
+    raiz->modificarHijoIzquierdo(node->obtenerDato());
+  } else {
+    if (node->obtenerDato() == padre) {
+      insertarValor(raiz, padre, node);
+    } else {
+      insertarValor(raiz, padre, node);
+    }
+  }
+}
+
+template <class tipo>
+void ArbolNario<tipo>::crearPorLista(list<tipo> listData) {
+  this->raiz = NULL;
+  int lengthList = listData.size();
+
+  for (int i = 0; i < lengthList; i++) {
+    NodoArbol<tipo> *nodo = new NodoArbol<tipo>(listData.back());
+    this->insertarValor(this->raiz, listData.back(), nodo);
+    cout << this->obtenerRaiz() << endl;
+    listData.pop_back();
+  }
+  // cout << this->raiz->obtenerDato() << endl;
+}
+
+/*template <class tipo>
+NodoArbol<tipo> *
+ArbolNario<tipo>::insertarValor(NodoArbol<tipo> *raiz, tipo value,
+                                queue<NodoArbol<tipo> *> &queueNode) {
+
+  NodoArbol<tipo> *node = new NodoArbol<tipo>(value);
+
+  if (this->raiz == NULL)
+    this->raiz = node;
+
+
+  if (queueNode.front()->obtenerHijoIzquierdo() == NULL) {
+    queueNode.front()->modificarHijoIzquierdo(node->obtenerDato());
+  } else {
+    queueNode.front()->modificarHijoDerecho(node->obtenerDato());
+    queueNode.pop();
+  }
+
+  queueNode.push(node);
+
+  return this->raiz;
+}*/
 
 template <class tipo> ArbolNario<tipo>::ArbolNario() {
   this->raiz = new NodoArbol<tipo>();
@@ -237,9 +295,7 @@ void ArbolNario<tipo>::inorden(list<tipo> *listaInorden,
                                NodoArbol<tipo> *nodoRaiz) {
   if (!nodoRaiz->esNulo()) {
     this->inorden(&*listaInorden, nodoRaiz->obtenerHijoIzquierdo());
-
     (*listaInorden).push_back(nodoRaiz->obtenerDato());
-
     this->inorden(&*listaInorden, nodoRaiz->obtenerHijoDerecho());
   }
 }
@@ -251,7 +307,6 @@ void ArbolNario<tipo>::diametro(NodoArbol<tipo> *nodoRaiz, int *diametro) {
     int alturaDerecha = 0;
 
     this->altura(nodoRaiz->obtenerHijoIzquierdo(), 1, &alturaIzquierda);
-
     this->altura(nodoRaiz->obtenerHijoDerecho(), 1, &alturaDerecha);
 
     if ((alturaDerecha + alturaDerecha + 1) > *diametro) {

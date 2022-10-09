@@ -26,6 +26,27 @@ void getReadWordByWord(list<int> &principalList, list<string> &listType) {
   }
 }
 
+/*list<string> convertMapJsonToList(personMap personData, string key) {
+  map<int, jobject>::iterator iMap;
+  list<string> listPeople;
+
+  for (iMap = personData.begin(); iMap != personData.end(); ++iMap) {
+    jobject personActual = iMap->second;
+
+    if (key == "cedula") {
+      string cleanedCi = cleanPunct(personActual.get(key));
+      listPeople.push_front(cleanedCi);
+    }
+
+    if (key == "nombre") {
+      string fullname = formatName(personActual);
+      listPeople.push_front(fullname);
+    }
+  }
+  return listPeople;
+}*/
+
+
 // Utils reading
 //
 
@@ -37,7 +58,8 @@ template <class type> void readVector(vector<type> words) {
 }
 
 template <class type> void readList(list<type> listElements) {
-  for (int i = 0; i < listElements.size(); ++i) {
+  int max = listElements.size();
+  for (int i = 0; i < max; ++i) {
     cout << listElements.back() << endl;
     listElements.pop_back();
   }
