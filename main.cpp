@@ -28,6 +28,7 @@ string formatName(jobject person) {
 }
 
 // Parsing slaves array
+// @params1 a jobject to get the "subordinados"
 // @return a jobject of slaves
 jobject parsingSlaves(jobject person) {
   string slaves = person.get("subordinados");
@@ -36,6 +37,7 @@ jobject parsingSlaves(jobject person) {
 }
 
 // get a map list by level
+// @params1 a map list with the root of json
 // @return map with person.
 personMap getByLevel(personMap personData) {
   int i = 0, j = 0;
@@ -76,6 +78,7 @@ personMap getByLevel(personMap personData) {
 }
 
 // Get a map list in preorden
+// @params1 a map list with the root of json
 // @return map with person.
 personMap getPeoplePreorden(personMap personData) {
   int i = 0, j = 0;
@@ -121,6 +124,241 @@ personMap getPeoplePreorden(personMap personData) {
   return personData;
 }
 
+// Get a map list in postorden
+// @params1 a map list with the root of json
+// @return map with person.
+personMap getPeoplePostorden(personMap personData) {
+  int i = 0;
+  bool isRoadComplete = false;
+  list<int> totalSlaves;
+
+  jobject personSlave = parsingSlaves(personData[0]);
+  int maxSlaves = personSlave.size();
+
+  personMap auxPersonData, personWithSlaves;
+  auxPersonData.insert(par(1, personSlave));
+
+  map<int, jobject>::iterator iMap = auxPersonData.begin();
+  while (i < maxSlaves) {
+    jobject personActual = iMap->second.array(i);
+    jobject slaves = jobject::parse(personActual.get("subordinados"));
+    bool haveSlaves = slaves.size() > 0;
+
+    if (!haveSlaves) {
+      personData.insert(par(personData.size(), personActual));
+    }
+    i++;
+
+    if (haveSlaves) {
+      auxPersonData.insert(par(i + 1, slaves));
+      personWithSlaves.insert(par(personWithSlaves.size(), personActual));
+
+      // coloca el valor actual del iterador para retomarlo
+      totalSlaves.push_back(i);
+
+      // Coloca el iterador maximo del siguiente
+      totalSlaves.push_front(slaves.size());
+      i = 0; // Reset slave
+      iMap++;
+    }
+
+    if (!haveSlaves && !totalSlaves.empty()) {
+      if (totalSlaves.front() == i) {
+        totalSlaves.pop_front();
+        i = totalSlaves.back();
+        totalSlaves.pop_back();
+        iMap--;
+      }
+    }
+  }
+
+  map<int, jobject>::iterator counter;
+  auto init = personWithSlaves.begin();
+  auto end = personWithSlaves.end();
+  for (counter = init; counter != end; counter++) {
+    jobject personActual = counter->second;
+    personData.insert(par(personData.size(), personActual));
+  }
+
+  totalSlaves.clear();
+  auxPersonData.clear();
+  return personData;
+}
+
+// Get a map list in inorden
+// @params1 a map list with the root of json
+// @return map with person.
+personMap getPeopleInorden(personMap personData) {
+  int i = 0;
+  bool isRoadComplete = false;
+  list<int> totalSlaves;
+
+  jobject personSlave = parsingSlaves(personData[0]);
+  int maxSlaves = personSlave.size();
+
+  personMap auxPersonData, personWithSlaves;
+  auxPersonData.insert(par(1, personSlave));
+
+  map<int, jobject>::iterator iMap = auxPersonData.begin();
+  while (i < maxSlaves) {
+    jobject personActual = iMap->second.array(i);
+    jobject slaves = jobject::parse(personActual.get("subordinados"));
+    bool haveSlaves = slaves.size() > 0;
+
+    if (!haveSlaves) {
+      // cout << "Persona actual: " << personActual.get("nombre") << endl;
+      personData.insert(par(personData.size(), personActual));
+    }
+    i++;
+
+    if (haveSlaves) {
+      auxPersonData.insert(par(i + 1, slaves));
+      personWithSlaves.insert(par(personWithSlaves.size(), personActual));
+
+      // coloca el valor actual del iterador para retomarlo
+      totalSlaves.push_back(i);
+
+      // Coloca el iterador maximo del siguiente
+      totalSlaves.push_front(slaves.size());
+      i = 0; // Reset slave
+      iMap++;
+    }
+
+    if (!haveSlaves && !totalSlaves.empty()) {
+      if (totalSlaves.front() == i) {
+        totalSlaves.pop_front();
+        i = totalSlaves.back();
+        totalSlaves.pop_back();
+        iMap--;
+      }
+    }
+  }
+
+  map<int, jobject>::iterator counter;
+  auto init = personWithSlaves.begin();
+  auto end = personWithSlaves.end();
+  for (counter = init; counter != end; counter++) {
+    jobject personActual = counter->second;
+    personData.insert(par(personData.size(), personActual));
+  }
+
+  totalSlaves.clear();
+  auxPersonData.clear();
+  personWithSlaves.clear();
+
+  return personData;
+}
+
+// Delete of the first position the root and set in the correct position
+// @params1: an postorden list map
+// @return: a postorden list sorted correctly
+personMap sortPostorden(personMap postorden) {
+  jobject root = postorden[0];
+  personMap newPostorden;
+
+  postorden.erase(0);
+
+  map<int, jobject>::iterator iMap = postorden.begin();
+  map<int, jobject>::iterator end = postorden.end();
+
+  while (iMap != postorden.end()) {
+    jobject personActual = iMap->second;
+    newPostorden.insert(par(newPostorden.size(), personActual));
+
+    if (iMap->first == postorden.size())
+      newPostorden.insert(par(newPostorden.size(), root));
+
+    iMap++;
+  }
+
+  return newPostorden;
+}
+
+// Delete of the first position the root and set in the correct position
+// @params1: an inorden list map
+// @return: an inorden list sorted correctly
+personMap sortInorden(personMap inorden) {
+  int position = inorden.size() / 2;
+  jobject root = inorden[0];
+  personMap newInorden;
+
+  inorden.erase(0);
+
+  map<int, jobject>::iterator iMap = inorden.begin();
+  while (iMap != inorden.end()) {
+    jobject personActual = iMap->second;
+    if (iMap->first == position) {
+      newInorden.insert(par(newInorden.size(), root));
+    }
+    newInorden.insert(par(newInorden.size(), personActual));
+    iMap++;
+  }
+
+  return newInorden;
+}
+
+// Build an string of the type orden
+// @params1 a map list with the data of the tree orden
+// @params2 the mode to get the key of the json (cedula or nombre)
+// @params3 PREORDEN, INORDEN, POSTORDEN, BYLEVEL
+// @return an array in string format by the type orden
+string buildTypeListInString(personMap ordenList, string mode,
+                             string typeOrden) {
+  vector<string> newOrdenList;
+  map<int, jobject>::iterator iMap;
+
+  newOrdenList.push_back(typeOrden);
+  newOrdenList.push_back(":[\"");
+
+  for (iMap = ordenList.begin(); iMap != ordenList.end(); ++iMap) {
+    jobject personActual = iMap->second;
+
+    if (mode == "cedula") {
+      newOrdenList.push_back(personActual.get("cedula"));
+    }
+
+    if (mode == "nombre") {
+      string fullname = formatName(personActual);
+      newOrdenList.push_back(fullname);
+    }
+
+    newOrdenList.push_back("\",\"");
+  }
+
+  string finale = convertVectorToString(newOrdenList);
+  finale.pop_back();
+  finale.pop_back();
+  finale.push_back(']');
+
+  return finale;
+}
+
+// Save the json object in entrada.txt
+// @params a json object with data
+void saveFile(personMap personData, string mode) {
+  personMap preorden = getPeoplePreorden(personData);
+
+  personMap postorden = getPeoplePostorden(personData);
+  postorden = sortPostorden(postorden);
+
+  personMap inorden = getPeopleInorden(personData);
+  inorden = sortInorden(inorden);
+
+  personMap byLevel = getByLevel(personData);
+
+  string preordenFinal = buildTypeListInString(preorden, mode, "PREORDEN");
+  cout << preordenFinal << endl;
+
+  string inordenFinal = buildTypeListInString(inorden, mode, "INORDEN");
+  cout << inordenFinal << endl;
+
+  string postordenFinal = buildTypeListInString(postorden, mode, "POSTORDEN");
+  cout << postordenFinal << endl;
+
+  string byLevelFinal = buildTypeListInString(byLevel, mode, "NIVELES");
+  cout << byLevelFinal << endl;
+}
+//
 // Iterate a map of json and show ther keys and values
 void showPeople(personMap personData) {
   map<int, jobject>::iterator iMap;
@@ -150,18 +388,14 @@ int main() {
   }
 
   string jsonString = convertVectorToString(jsonData);
-  jobject person = jobject::parse(jsonString);
+  jobject rootPerson = jobject::parse(jsonString);
 
   personMap personData;
-  personData.insert(par(0, person));
-  jobject parsedSlaves = parsingSlaves(person);
+  personData.insert(par(0, rootPerson));
+  jobject parsedSlaves = parsingSlaves(rootPerson);
 
   if (parsedSlaves.size() > 0) {
-    personMap preorden = getPeoplePreorden(personData);
-    showPeople(preorden);
-    cout << endl;
-    personMap byLevel = getByLevel(personData);
-    showPeople(byLevel);
+    saveFile(personData, mode);
   }
 
   return 0;
