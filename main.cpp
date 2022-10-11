@@ -333,9 +333,10 @@ string buildTypeListInString(personMap ordenList, string mode,
   return finale;
 }
 
-// Save the json object in entrada.txt
-// @params a json object with data
-void saveFile(personMap personData, string mode) {
+// Show in prompt the result
+// @params1 a json object with data
+// @params2 the mode cedula or nombre
+void showData(personMap personData, string mode) {
   personMap preorden = getPeoplePreorden(personData);
 
   personMap postorden = getPeoplePostorden(personData);
@@ -347,16 +348,14 @@ void saveFile(personMap personData, string mode) {
   personMap byLevel = getByLevel(personData);
 
   string preordenFinal = buildTypeListInString(preorden, mode, "PREORDEN");
-  cout << preordenFinal << endl;
-
   string inordenFinal = buildTypeListInString(inorden, mode, "INORDEN");
-  cout << inordenFinal << endl;
-
   string postordenFinal = buildTypeListInString(postorden, mode, "POSTORDEN");
-  cout << postordenFinal << endl;
-
   string byLevelFinal = buildTypeListInString(byLevel, mode, "NIVELES");
-  cout << byLevelFinal << endl;
+
+  string data = preordenFinal + "\n" + inordenFinal + "\n" + postordenFinal +
+                "\n" + byLevelFinal;
+
+  cout << data << endl;
 }
 //
 // Iterate a map of json and show ther keys and values
@@ -395,7 +394,7 @@ int main() {
   jobject parsedSlaves = parsingSlaves(rootPerson);
 
   if (parsedSlaves.size() > 0) {
-    saveFile(personData, mode);
+    showData(personData, mode);
   }
 
   return 0;

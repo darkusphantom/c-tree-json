@@ -7,7 +7,9 @@
 #include <vector>
 using namespace std;
 
-// Files
+// Read a file
+// @params a string with the name of the file
+// @return a vector of string with the data of the filename
 vector<string> readFile(string filename) {
   vector<string> lines;
   string line;
@@ -29,6 +31,15 @@ vector<string> readFile(string filename) {
 
   file.close();
   return lines;
+}
+
+// Write in a file
+// @params1 a string with the data to write in the file
+// @params2 the name of the file
+void writeFile(string data, string filename) {
+  ofstream file(filename.c_str());
+  file << data;
+  file.close();
 }
 
 #endif
